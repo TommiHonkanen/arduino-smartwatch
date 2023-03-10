@@ -41,17 +41,47 @@ void setup() {
 void loop() {
   DateTime now = rtc.now();
 
-  int sec = now.second();
+  String year;
+  String month;
+  String day;
+  String hour;
+  String minute;
+  String second;
 
-  String date = String(now.day()) + ":" + String(now.month()) + ":" + String(now.year());
-  String time;
-
-  if (sec < 10) {
-    time = String(now.hour()) + ":" + String(now.minute()) + ":0" + String(now.second());
+  if (now.month() < 10) {
+    month = "0" + String(month);
   } else {
-    time = String(now.hour()) + ":" + String(now.minute()) + ":" + String(now.second());
+    month = String(month);
   }
-  
+
+  if (now.day() < 10) {
+    day = "0" + String(day);
+  } else {
+    day = String(day);
+  }
+
+  if (now.hour() < 10) {
+    hour = "0" + String(hour);
+  } else {
+    hour = String(hour);
+  }
+
+  if (now.minute() < 10) {
+    minute = "0" + String(minute);
+  } else {
+    minute = String(minute);
+  }
+
+  if (now.second() < 10) {
+    second = "0" + String(second);
+  } else {
+    second = String(second);
+  }
+
+  String date = day + ":" + month + ":" + year;
+
+  String time = hour + ":" + minute + ":" + second;
+
   int16_t x, y;
   uint16_t w, h;
   tft.setTextSize(3);
