@@ -33,10 +33,15 @@ Before using this app, you need to have the following installed:
   | CK | 13 |
   | SO | 12 |
   | SI | 11 |
-  | TD | 10 |
+  | TC | 10 |
   | RT | 9 |
-  | DD | 8 |
-  | CD | 4 |
+  | DC | 8 |
+  | CC | 4 |
+  
+  | RTC | Arduino Nano 33 BLE |
+  | --- | --- |
+  | SCL | A5  |
+  | SDA | A4  |
 
 2. Install the required libraries in Arduino IDE.
 
