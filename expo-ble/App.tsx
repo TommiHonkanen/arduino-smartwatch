@@ -8,6 +8,7 @@ import {
   TextInput,
 } from "react-native";
 import DeviceModal from "./DeviceConnectionModal";
+import WallpaperModal from "./WallpaperModal";
 import { PulseIndicator } from "./PulseIndicator";
 import useBLE from "./useBLE";
 
@@ -21,7 +22,10 @@ const App = () => {
     disconnectFromDevice,
     sendData,
   } = useBLE();
-  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const [isDeviceModalVisible, setIsDeviceModalVisible] =
+    useState<boolean>(false);
+  const [isWallpaperModalVisible, setIsWallpaperModalVisible] =
+    useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
 
   const scanForDevices = async () => {
@@ -31,13 +35,17 @@ const App = () => {
     }
   };
 
-  const hideModal = () => {
-    setIsModalVisible(false);
+  const hideDeviceModal = () => {
+    setIsDeviceModalVisible(false);
+  };
+
+  const hideWallpaperModal = () => {
+    setIsWallpaperModalVisible(false);
   };
 
   const openModal = async () => {
     scanForDevices();
-    setIsModalVisible(true);
+    setIsDeviceModalVisible(true);
   };
 
   return (
@@ -51,6 +59,11 @@ const App = () => {
                 flexDirection: "column",
                 alignItems: "center",
               }}>
+              <TouchableOpacity
+                onPress={() => setIsWallpaperModalVisible(true)}
+                style={{ ...styles.ctaButton, width: 200 }}>
+                <Text style={styles.ctaButtonText}>Change Wallpaper</Text>
+              </TouchableOpacity>
               <Text style={styles.titleText}>Enter a value:</Text>
               <TextInput
                 style={{
@@ -85,10 +98,15 @@ const App = () => {
         </Text>
       </TouchableOpacity>
       <DeviceModal
-        closeModal={hideModal}
-        visible={isModalVisible}
+        closeModal={hideDeviceModal}
+        visible={isDeviceModalVisible}
         connectToPeripheral={connectToDevice}
         devices={allDevices}
+      />
+      <WallpaperModal
+        closeModal={hideWallpaperModal}
+        visible={isWallpaperModalVisible}
+        sendWallpaper={sendData}
       />
     </SafeAreaView>
   );
