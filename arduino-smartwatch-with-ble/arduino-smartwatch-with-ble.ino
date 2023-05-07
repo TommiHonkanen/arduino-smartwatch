@@ -1,6 +1,6 @@
 #include <Adafruit_GFX.h>     // Graphics library for the display
 #include <Adafruit_ST7789.h>  // Display driver library
-#include <uRTCLib.h>          // Real-time clock library
+#include <RTClib.h>           // Real-time clock library
 #include <ArduinoBLE.h>       // include the ArduinoBLE library
 
 // define UUIDs for the BLE service and characteristic
@@ -15,7 +15,7 @@
 
 Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);  // Create a display object
 
-uRTCLib rtc(0x68);  // Create a real-time clock object
+RTC_DS3231 rtc;   // Create a real-time clock object
 
 BLEService service(SERVICE_UUID);                                                  // create a new BLE service instance with the specified UUID
 BLECharacteristic characteristic(CHARACTERISTIC_UUID, BLEWrite | BLENotify, 100);  // create a new BLE characteristic instance with the specified UUID and properties
@@ -753,24 +753,25 @@ const uint16_t saul[] PROGMEM = {
 };
 
 void setup() {
-  // Serial.begin(9600);             // Start serial communication at 9600 baud rate
-  // while (!Serial) {}              // Wait for serial connection
+  Serial.begin(9600);             // Start serial communication at 9600 baud rate
+  while (!Serial) {}              // Wait for serial connection
 
   tft.init(240, 240);            // Initialize display with a resolution of 240x240
   tft.setRotation(3);            // Set display rotation to 1 (to change the orientation)
   tft.fillScreen(ST77XX_BLACK);  // Fill the display with black color
 
-  URTCLIB_WIRE.begin();
+  if (!rtc.begin()) {             // Check if the real-time clock module is present
+    Serial.println("Couldn't find RTC");
+    Serial.flush();               // Flush the serial buffer
+    while (1);                    // If real-time clock not present, stop program
+  }
 
-  // Comment out below line once you set the date & time.
-  // Following line sets the RTC with an explicit date & time
-  // for example to set January 13 2022 at 12:56 you would call:
-  // rtc.set(0, 50, 11, 5, 4, 5, 23);
-  // rtc.set(second, minute, hour, dayOfWeek, dayOfMonth, month, year)
-  // set day of week (1=Sunday, 7=Saturday)
+  pinMode(3, INPUT_PULLUP);
+
+  rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
 
   if (!BLE.begin()) {  // initialize the BLE module and check if it fails
-    // Serial.println("Failed to initialize Bluetooth"); // print error message if initialization fails
+    Serial.println("Failed to initialize Bluetooth"); // print error message if initialization fails
     while (1)
       ;  // loop indefinitely if initialization fails
   }
@@ -781,21 +782,37 @@ void setup() {
   BLE.addService(service);                    // add the BLE service to the device
   BLE.advertise();                            // start advertising the device
 
-  // Serial.println("Bluetooth device is ready to receive data."); // print a message to indicate that the device is ready to receive data
+  Serial.println("Bluetooth device is ready to receive data."); // print a message to indicate that the device is ready to receive data
 }
 
 bool wallpaperUpdated = false;
 int currentWallpaper = 0;
 
-unsigned long currentTime = 1681187462065;
+float temp = 0.0;
+int humidity = 0;
+float windSpeed = 0.0;
+int clouds = 0;
+
+int currentView = 0;
+bool areBackgroundRectanglesDrawn = false;
 
 void loop() {
   BLEDevice central = BLE.central();  // check if a central device is connected
   if (central) {                      // if a central device is connected
-    // Serial.print("Connected to central: ");
-    // Serial.println(central.address()); // print the address of the central device
+    Serial.print("Connected to central: ");
+    Serial.println(central.address()); // print the address of the central device
     while (central.connected()) {  // loop while the central device is connected
-      drawTime();
+      if (digitalRead(3) == 0 ) {
+        areBackgroundRectanglesDrawn = false;
+        currentView++;
+      }
+      if (currentView % 3 == 0) {
+        drawTime();
+      } else if (currentView % 3 == 1) {
+        drawTemperature();
+      } else {
+        drawWeather();
+      }
       if (characteristic.written()) {                                                    // check if the characteristic has been written
         const uint8_t* data = characteristic.value();                                    // get the value of the characteristic
         receivedString = String(reinterpret_cast<const char*>(data));                    // convert the value to a string and store it in the global variable
@@ -804,38 +821,69 @@ void loop() {
           lastNonDotIndex--;                                                             // decrement the index
         }
         receivedString = receivedString.substring(0, lastNonDotIndex + 1);  // remove the trailing dots from the received string
+        Serial.print("Received data: ");
+        Serial.println(receivedString.substring(0, 100)); // print the received string without tell null terminator
         if (receivedString.substring(0, 2) == "W0") {
           if (currentWallpaper != 0) {
             wallpaperUpdated = false;
+            areBackgroundRectanglesDrawn = false;
             currentWallpaper = 0;
           }
         } else if (receivedString.substring(0, 2) == "W1") {
           if (currentWallpaper != 1) {
             wallpaperUpdated = false;
+            areBackgroundRectanglesDrawn = false;
             currentWallpaper = 1;
           }
         } else if (receivedString.substring(0, 2) == "W2") {
           if (currentWallpaper != 2) {
             wallpaperUpdated = false;
+            areBackgroundRectanglesDrawn = false;
             currentWallpaper = 2;
           }
+        } else {
+          String parts[4];
+          int index = 0;
+          while (receivedString.length() > 0) {
+            int spaceIndex = receivedString.indexOf(" ");
+            if (spaceIndex == -1) {
+              parts[index] = receivedString;
+              receivedString = "";
+            } else {
+              parts[index] = receivedString.substring(0, spaceIndex);
+              receivedString = receivedString.substring(spaceIndex + 1);
+            }
+            index++;
+          }
+          temp = parts[0].toFloat() - 273.15;
+          humidity = parts[1].toInt();
+          windSpeed = parts[2].toFloat();
+          clouds = parts[3].toInt();
         }
-        // Serial.print("Received data: ");
-        // Serial.println(receivedString.substring(0, 100)); // print the received string without tell null terminator
       }
     }
-    // Serial.print("Disconnected from central: ");
-    // Serial.println(central.address()); // print the address of the disconnected central device
+    Serial.print("Disconnected from central: ");
+    Serial.println(central.address()); // print the address of the disconnected central device
   } else {
-    drawTime();
+    if (digitalRead(3) == 0 ) {
+      areBackgroundRectanglesDrawn = false;
+      currentView++;
+    }
+    if (currentView % 3 == 0) {
+      drawTime();
+    } else if (currentView % 3 == 1) {
+      drawTemperature();
+    } else {
+      drawWeather();
+    }
   }
 }
 
 void drawTime() {
-  rtc.refresh();
+  DateTime now = rtc.now();       // Get the current time from the real-time clock module
 
-  String date = addZero(rtc.day()) + "." + addZero(rtc.month()) + "." + String(rtc.year());       // Format the date string
-  String time = addZero(rtc.hour()) + ":" + addZero(rtc.minute()) + ":" + addZero(rtc.second());  // Format the time string
+  String date = addZero(now.day()) + "." + addZero(now.month()) + "." + String(now.year());  // Format the date string
+  String time = addZero(now.hour()) + ":" + addZero(now.minute()) + ":" + addZero(now.second());  // Format the time string
 
   if (!wallpaperUpdated) {
     switch (currentWallpaper) {
@@ -858,6 +906,9 @@ void drawTime() {
   tft.getTextBounds(date, 0, 0, &x, &y, &w, &h);  // Get the bounds of the date string
   int x_offset = (240 - w) / 2;                   // Calculate the x offset for centering the date string
 
+  if (areBackgroundRectanglesDrawn == false) {
+    tft.fillRect(0, 80, 240, h, ST77XX_BLACK);
+  }
   tft.setCursor(x_offset, 80);                    // Set the cursor position for the date string
   tft.setTextColor(ST77XX_GREEN, ST77XX_BLACK);   // Set the text color to green
   tft.print(date);                                // Print the date string on the display
@@ -865,6 +916,10 @@ void drawTime() {
   tft.getTextBounds(time, 0, 0, &x, &y, &w, &h);  // Get the bounds of the time string
   x_offset = (240 - w) / 2;                       // Calculate the x offset for centering the time string
 
+  if (areBackgroundRectanglesDrawn == false) {
+    tft.fillRect(0, 120, 240, h, ST77XX_BLACK);
+    areBackgroundRectanglesDrawn = true;
+  }
   tft.setCursor(x_offset, 120);                  // Set the cursor position for the time string
   tft.setTextColor(ST77XX_WHITE, ST77XX_BLACK);  // Set the text color to white
   tft.print(time);                               // Print the time string on the display
@@ -877,4 +932,92 @@ String addZero(int num) {
   } else {
     return String(num);  // Otherwise, just convert the number to a string
   }
+}
+
+void drawTemperature() {
+  String temperature = "Temp. " + String(temp) + " C";
+  String humid = "Hum. " + String(humidity) + " %";
+
+  if (!wallpaperUpdated) {
+    switch (currentWallpaper) {
+      case 0:
+        tft.drawRGBBitmap(0, 0, chungus, 240, 240);
+        break;
+      case 1:
+        tft.drawRGBBitmap(0, 0, saul, 240, 240);
+        break;
+      default:
+        tft.drawRGBBitmap(0, 0, rick, 240, 240);
+        break;
+    }
+    wallpaperUpdated = true;
+  }
+
+  int16_t x, y;
+  uint16_t w, h;
+  tft.setTextSize(3);                             // Set the text size to 3
+  tft.getTextBounds(temperature, 0, 0, &x, &y, &w, &h);  // Get the bounds of the date string
+  int x_offset = (240 - w) / 2;                   // Calculate the x offset for centering the date string
+
+  if (areBackgroundRectanglesDrawn == false) {
+    tft.fillRect(0, 80, 240, h, ST77XX_BLACK);
+  }
+  tft.setCursor(x_offset, 80);                    // Set the cursor position for the date string
+  tft.setTextColor(ST77XX_GREEN, ST77XX_BLACK);   // Set the text color to green
+  tft.print(temperature);                                // Print the date string on the display
+  tft.setTextSize(4);                             // Set the text size to 4
+  tft.getTextBounds(humid, 0, 0, &x, &y, &w, &h);  // Get the bounds of the time string
+  x_offset = (240 - w) / 2;                       // Calculate the x offset for centering the time string
+
+  if (areBackgroundRectanglesDrawn == false) {
+    tft.fillRect(0, 120, 240, h, ST77XX_BLACK);
+    areBackgroundRectanglesDrawn = true;
+  }
+  tft.setCursor(x_offset, 120);                  // Set the cursor position for the time string
+  tft.setTextColor(ST77XX_WHITE, ST77XX_BLACK);  // Set the text color to white
+  tft.print(humid);                               // Print the time string on the display
+}
+
+void drawWeather() {
+  String wind = "Wind " + String(windSpeed) + " m/s";
+  String cloudCoverage = "Clouds " + String(clouds) + " %";
+
+  if (!wallpaperUpdated) {
+    switch (currentWallpaper) {
+      case 0:
+        tft.drawRGBBitmap(0, 0, chungus, 240, 240);
+        break;
+      case 1:
+        tft.drawRGBBitmap(0, 0, saul, 240, 240);
+        break;
+      default:
+        tft.drawRGBBitmap(0, 0, rick, 240, 240);
+        break;
+    }
+    wallpaperUpdated = true;
+  }
+
+  int16_t x, y;
+  uint16_t w, h;
+  tft.setTextSize(3);                             // Set the text size to 3
+  tft.getTextBounds(wind, 0, 0, &x, &y, &w, &h);  // Get the bounds of the date string
+  int x_offset = (240 - w) / 2;                   // Calculate the x offset for centering the date string
+
+  if (areBackgroundRectanglesDrawn == false) {
+    tft.fillRect(0, 80, 240, h, ST77XX_BLACK);
+  }
+  tft.setCursor(x_offset, 80);                    // Set the cursor position for the date string
+  tft.setTextColor(ST77XX_GREEN, ST77XX_BLACK);   // Set the text color to green
+  tft.print(wind);                                // Print the date string on the display
+  tft.setTextSize(4);                             // Set the text size to 4
+  tft.getTextBounds(cloudCoverage, 0, 0, &x, &y, &w, &h);  // Get the bounds of the time string
+  x_offset = (240 - w) / 2;                       // Calculate the x offset for centering the time string
+
+  if (areBackgroundRectanglesDrawn == false) {
+    tft.fillRect(0, 120, 240, h, ST77XX_BLACK);
+    areBackgroundRectanglesDrawn = true;
+  }
+  tft.setCursor(x_offset, 120);                  // Set the cursor position for the time string
+  tft.setTextColor(ST77XX_WHITE, ST77XX_BLACK);  // Set the text color to white
+  tft.print(cloudCoverage);                               // Print the time string on the display
 }

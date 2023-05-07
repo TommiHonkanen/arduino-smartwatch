@@ -28,6 +28,9 @@ const App = () => {
     useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
 
+  const API_KEY = "03ed9532b61d3531331a01a65d78b6b9";
+  const location = "Otaniemi";
+
   const scanForDevices = async () => {
     const isPermissionsEnabled = await requestPermissions();
     if (isPermissionsEnabled) {
@@ -48,6 +51,25 @@ const App = () => {
     setIsDeviceModalVisible(true);
   };
 
+  const updateWeather = async () => {
+    const response = await fetch(
+      `http://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${API_KEY}`
+    );
+
+    const data = await response.json();
+
+    const formattedString =
+      data.main.temp +
+      " " +
+      data.main.humidity +
+      " " +
+      data.wind.speed +
+      " " +
+      data.clouds.all;
+
+    sendData(formattedString);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.titleWrapper}>
@@ -59,6 +81,11 @@ const App = () => {
                 flexDirection: "column",
                 alignItems: "center",
               }}>
+              <TouchableOpacity
+                onPress={() => updateWeather()}
+                style={{ ...styles.ctaButton, width: 200 }}>
+                <Text style={styles.ctaButtonText}>Update Weather</Text>
+              </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => setIsWallpaperModalVisible(true)}
                 style={{ ...styles.ctaButton, width: 200 }}>
