@@ -2,6 +2,7 @@
 #include <Adafruit_ST7789.h>  // Display driver library
 #include <RTClib.h>           // Real-time clock library
 #include <ArduinoBLE.h>       // include the ArduinoBLE library
+#include <Wire.h>
 
 // define UUIDs for the BLE service and characteristic
 #define SERVICE_UUID "cb2565ff-270a-432b-91ab-85d58ebaf95d"
@@ -760,6 +761,8 @@ void setup() {
   tft.setRotation(3);            // Set display rotation to 1 (to change the orientation)
   tft.fillScreen(ST77XX_BLACK);  // Fill the display with black color
 
+  Wire.begin();
+  
   if (!rtc.begin()) {             // Check if the real-time clock module is present
     Serial.println("Couldn't find RTC");
     Serial.flush();               // Flush the serial buffer
@@ -768,7 +771,7 @@ void setup() {
 
   pinMode(3, INPUT_PULLUP);
 
-  rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  // rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
 
   if (!BLE.begin()) {  // initialize the BLE module and check if it fails
     Serial.println("Failed to initialize Bluetooth"); // print error message if initialization fails
