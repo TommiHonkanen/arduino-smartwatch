@@ -3,6 +3,8 @@
 #include <RTClib.h>           // Real-time clock library
 #include <ArduinoBLE.h>       // include the ArduinoBLE library
 #include <Wire.h>
+#include <stdlib.h>
+#include <string.h>
 
 // define UUIDs for the BLE service and characteristic
 #define SERVICE_UUID "cb2565ff-270a-432b-91ab-85d58ebaf95d"
@@ -754,8 +756,8 @@ const uint16_t saul[] PROGMEM = {
 };
 
 void setup() {
-  Serial.begin(9600);             // Start serial communication at 9600 baud rate
-  while (!Serial) {}              // Wait for serial connection
+  // Serial.begin(9600);             // Start serial communication at 9600 baud rate
+  // while (!Serial) {}              // Wait for serial connection
 
   tft.init(240, 240);            // Initialize display with a resolution of 240x240
   tft.setRotation(3);            // Set display rotation to 1 (to change the orientation)
@@ -764,8 +766,8 @@ void setup() {
   Wire.begin();
   
   if (!rtc.begin()) {             // Check if the real-time clock module is present
-    Serial.println("Couldn't find RTC");
-    Serial.flush();               // Flush the serial buffer
+    // Serial.println("Couldn't find RTC");
+    // Serial.flush();               // Flush the serial buffer
     while (1);                    // If real-time clock not present, stop program
   }
 
@@ -774,7 +776,7 @@ void setup() {
   // rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
 
   if (!BLE.begin()) {  // initialize the BLE module and check if it fails
-    Serial.println("Failed to initialize Bluetooth"); // print error message if initialization fails
+    // Serial.println("Failed to initialize Bluetooth"); // print error message if initialization fails
     while (1)
       ;  // loop indefinitely if initialization fails
   }
@@ -785,16 +787,16 @@ void setup() {
   BLE.addService(service);                    // add the BLE service to the device
   BLE.advertise();                            // start advertising the device
 
-  Serial.println("Bluetooth device is ready to receive data."); // print a message to indicate that the device is ready to receive data
+  // Serial.println("Bluetooth device is ready to receive data."); // print a message to indicate that the device is ready to receive data
 }
 
 bool wallpaperUpdated = false;
 int currentWallpaper = 0;
 
-float temp = 0.0;
-int humidity = 0;
-float windSpeed = 0.0;
-int clouds = 0;
+String temp = "0.0";
+String humidity = "0";
+String windSpeed = "0.0";
+String clouds = "0";
 
 int currentView = 0;
 bool areBackgroundRectanglesDrawn = false;
@@ -802,8 +804,8 @@ bool areBackgroundRectanglesDrawn = false;
 void loop() {
   BLEDevice central = BLE.central();  // check if a central device is connected
   if (central) {                      // if a central device is connected
-    Serial.print("Connected to central: ");
-    Serial.println(central.address()); // print the address of the central device
+    // Serial.print("Connected to central: ");
+    // Serial.println(central.address()); // print the address of the central device
     while (central.connected()) {  // loop while the central device is connected
       if (digitalRead(3) == 0 ) {
         areBackgroundRectanglesDrawn = false;
@@ -824,8 +826,8 @@ void loop() {
           lastNonDotIndex--;                                                             // decrement the index
         }
         receivedString = receivedString.substring(0, lastNonDotIndex + 1);  // remove the trailing dots from the received string
-        Serial.print("Received data: ");
-        Serial.println(receivedString.substring(0, 100)); // print the received string without tell null terminator
+        // Serial.print("Received data: ");
+        // Serial.println(receivedString.substring(0, 100)); // print the received string without tell null terminator
         if (receivedString.substring(0, 2) == "W0") {
           if (currentWallpaper != 0) {
             wallpaperUpdated = false;
@@ -845,28 +847,35 @@ void loop() {
             currentWallpaper = 2;
           }
         } else {
-          String parts[4];
           int index = 0;
           while (receivedString.length() > 0) {
             int spaceIndex = receivedString.indexOf(" ");
             if (spaceIndex == -1) {
-              parts[index] = receivedString;
               receivedString = "";
             } else {
-              parts[index] = receivedString.substring(0, spaceIndex);
+              if (index == 0) {
+                temp = receivedString.substring(0, spaceIndex);
+              } else if (index == 1) {
+                humidity = receivedString.substring(0, spaceIndex);
+              } else if (index == 2) {
+                windSpeed = receivedString.substring(0, spaceIndex);
+              } else if (index == 3) {
+                clouds = receivedString.substring(0, spaceIndex);
+              }
               receivedString = receivedString.substring(spaceIndex + 1);
             }
             index++;
           }
-          temp = parts[0].toFloat() - 273.15;
-          humidity = parts[1].toInt();
-          windSpeed = parts[2].toFloat();
-          clouds = parts[3].toInt();
-        }
+
+          // Serial.println(temp);
+          // Serial.println(humidity);
+          // Serial.println(windSpeed);
+          // Serial.println(clouds);
+          }
       }
     }
-    Serial.print("Disconnected from central: ");
-    Serial.println(central.address()); // print the address of the disconnected central device
+    // Serial.print("Disconnected from central: ");
+    // Serial.println(central.address()); // print the address of the disconnected central device
   } else {
     if (digitalRead(3) == 0 ) {
       areBackgroundRectanglesDrawn = false;
@@ -938,8 +947,8 @@ String addZero(int num) {
 }
 
 void drawTemperature() {
-  String temperature = "Temp. " + String(temp) + " C";
-  String humid = "Hum. " + String(humidity) + " %";
+  String temperature = "Temp. " + temp + "C";
+  String humid = "Hum. " + humidity + "%";
 
   if (!wallpaperUpdated) {
     switch (currentWallpaper) {
@@ -982,8 +991,8 @@ void drawTemperature() {
 }
 
 void drawWeather() {
-  String wind = "Wind " + String(windSpeed) + " m/s";
-  String cloudCoverage = "Clouds " + String(clouds) + " %";
+  String wind = "Wind " + windSpeed + "m/s";
+  String cloudCoverage = "Clouds " + clouds + "%";
 
   if (!wallpaperUpdated) {
     switch (currentWallpaper) {

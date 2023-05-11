@@ -59,7 +59,7 @@ const App = () => {
     const data = await response.json();
 
     const formattedString =
-      data.main.temp +
+      (data.main.temp - 273.15).toFixed(2) +
       " " +
       data.main.humidity +
       " " +
@@ -67,7 +67,7 @@ const App = () => {
       " " +
       data.clouds.all;
 
-    sendData(formattedString);
+    sendData(formattedString, 0);
   };
 
   return (
@@ -107,7 +107,7 @@ const App = () => {
                 value={message}
               />
               <TouchableOpacity
-                onPress={() => sendData(message)}
+                onPress={() => sendData(message, 0)}
                 style={{ ...styles.ctaButton, width: 100 }}>
                 <Text style={styles.ctaButtonText}>Submit</Text>
               </TouchableOpacity>

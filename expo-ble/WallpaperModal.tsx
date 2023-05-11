@@ -11,7 +11,7 @@ import {
 
 type WallpaperModalProps = {
   visible: boolean;
-  sendWallpaper: (wallpaper: string) => void;
+  sendWallpaper: (wallpaper: string, call: number) => void;
   closeModal: () => void;
 };
 
@@ -31,7 +31,7 @@ const WallpaperModal: FC<WallpaperModalProps> = ({
         <View style={modalStyle.imageContainer}>
           <TouchableOpacity
             onPress={() => {
-              sendWallpaper("W0");
+              sendWallpaper("W0", 0);
               closeModal();
             }}>
             <Image
@@ -41,7 +41,7 @@ const WallpaperModal: FC<WallpaperModalProps> = ({
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
-              sendWallpaper("W1");
+              sendWallpaper("W1", 0);
               closeModal();
             }}>
             <Image
@@ -51,7 +51,7 @@ const WallpaperModal: FC<WallpaperModalProps> = ({
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
-              sendWallpaper("W2");
+              sendWallpaper("W2", 0);
               closeModal();
             }}>
             <Image

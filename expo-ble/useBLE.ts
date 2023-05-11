@@ -12,7 +12,7 @@ interface BluetoothLowEnergyApi {
   disconnectFromDevice: () => void;
   connectedDevice: Device | null;
   allDevices: Device[];
-  sendData: (value: string) => void;
+  sendData: (value: string, call: number) => void;
 }
 
 const SERVICE_UUID = "cb2565ff-270a-432b-91ab-85d58ebaf95d";
@@ -53,7 +53,10 @@ function useBLE(): BluetoothLowEnergyApi {
       }
       if (device) {
         setAllDevices((prevState: Device[]) => {
-          if (!isDuplicteDevice(prevState, device) && device.name) {
+          if (
+            !isDuplicteDevice(prevState, device) &&
+            device.name === "Arduino Nano 33 BLE"
+          ) {
             return [...prevState, device];
           }
           return prevState;
@@ -81,7 +84,7 @@ function useBLE(): BluetoothLowEnergyApi {
     }
   };
 
-  const sendData = async (value: string) => {
+  const sendData = async (value: string, call: number) => {
     console.log("Sending value: ", value);
     console.log("connected device: ", connectedDevice);
     const dataToSend =
@@ -97,6 +100,9 @@ function useBLE(): BluetoothLowEnergyApi {
       console.log("Value changed to :", dataToSend);
     } catch (e) {
       console.log("FAILED TO SEND VALUE", e);
+      if (call < 20) {
+        setTimeout(() => sendData(value, call + 1), 1500);
+      }
     }
   };
 
