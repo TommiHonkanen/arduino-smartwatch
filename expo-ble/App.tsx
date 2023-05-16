@@ -5,12 +5,13 @@ import {
   Text,
   TouchableOpacity,
   View,
-  TextInput,
 } from "react-native";
-import DeviceModal from "./DeviceConnectionModal";
-import WallpaperModal from "./WallpaperModal";
-import { PulseIndicator } from "./PulseIndicator";
+import DeviceModal from "./components/DeviceConnectionModal";
+import WallpaperModal from "./components/WallpaperModal";
+import WeatherModal from "./components/WeatherModal";
+import { PulseIndicator } from "./components/PulseIndicator";
 import useBLE from "./useBLE";
+import { Device } from "react-native-ble-plx";
 
 const App = () => {
   const {
@@ -26,10 +27,9 @@ const App = () => {
     useState<boolean>(false);
   const [isWallpaperModalVisible, setIsWallpaperModalVisible] =
     useState<boolean>(false);
-  const [message, setMessage] = useState<string>("");
-
-  const API_KEY = ""; // Add your own API key here
-  const location = "Otaniemi";
+  const [isWeatherModalVisible, setIsWeatherModalVisible] =
+    useState<boolean>(false);
+  // const [message, setMessage] = useState<string>("");
 
   const scanForDevices = async () => {
     const isPermissionsEnabled = await requestPermissions();
@@ -46,29 +46,16 @@ const App = () => {
     setIsWallpaperModalVisible(false);
   };
 
+  const hideWeatherModal = () => {
+    setIsWeatherModalVisible(false);
+  };
+
   const openModal = async () => {
     scanForDevices();
     setIsDeviceModalVisible(true);
   };
 
-  const updateWeather = async () => {
-    const response = await fetch(
-      `http://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${API_KEY}`
-    );
-
-    const data = await response.json();
-
-    const formattedString =
-      (data.main.temp - 273.15).toFixed(2) +
-      " " +
-      data.main.humidity +
-      " " +
-      data.wind.speed +
-      " " +
-      data.clouds.all;
-
-    sendData(formattedString, 0);
-  };
+  const deviceName: Device | null = connectedDevice;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -76,21 +63,27 @@ const App = () => {
         {connectedDevice ? (
           <>
             <PulseIndicator />
+            <Text style={styles.deviceText}>
+              {deviceName ? deviceName.name : "No device connected"}
+            </Text>
             <View
               style={{
                 flexDirection: "column",
                 alignItems: "center",
               }}>
-              <TouchableOpacity
-                onPress={() => updateWeather()}
-                style={{ ...styles.button, width: 200 }}>
-                <Text style={styles.buttonText}>Update Weather</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => setIsWallpaperModalVisible(true)}
-                style={{ ...styles.button, width: 200 }}>
-                <Text style={styles.buttonText}>Change Wallpaper</Text>
-              </TouchableOpacity>
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  onPress={() => setIsWeatherModalVisible(true)}
+                  style={{ ...styles.button, width: 200, marginBottom: 15 }}>
+                  <Text style={styles.buttonText}>Update Weather</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setIsWallpaperModalVisible(true)}
+                  style={{ ...styles.button, width: 200 }}>
+                  <Text style={styles.buttonText}>Change Wallpaper</Text>
+                </TouchableOpacity>
+              </View>
+              {/*}
               <Text style={styles.titleText}>Enter a value:</Text>
               <TextInput
                 style={{
@@ -111,6 +104,7 @@ const App = () => {
                 style={{ ...styles.button, width: 100 }}>
                 <Text style={styles.buttonText}>Submit</Text>
               </TouchableOpacity>
+              */}
             </View>
           </>
         ) : (
@@ -133,7 +127,12 @@ const App = () => {
       <WallpaperModal
         closeModal={hideWallpaperModal}
         visible={isWallpaperModalVisible}
-        sendWallpaper={sendData}
+        sendData={sendData}
+      />
+      <WeatherModal
+        closeModal={hideWeatherModal}
+        visible={isWeatherModalVisible}
+        sendData={sendData}
       />
     </SafeAreaView>
   );
@@ -156,10 +155,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     color: "black",
   },
-  text: {
-    fontSize: 25,
-    marginTop: 15,
-  },
   button: {
     backgroundColor: "#FF6060",
     justifyContent: "center",
@@ -173,6 +168,19 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     color: "white",
+  },
+  deviceText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginHorizontal: 20,
+    color: "black",
+  },
+  buttonContainer: {
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: "35%",
+    marginBottom: "20%",
   },
 });
 

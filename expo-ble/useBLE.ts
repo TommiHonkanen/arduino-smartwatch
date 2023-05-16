@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { PermissionsAndroid, Platform } from "react-native";
+import { PermissionsAndroid, Platform, Alert } from "react-native";
 import { BleManager, Device } from "react-native-ble-plx";
 
 import base64 from "react-native-base64";
@@ -11,7 +11,7 @@ interface BluetoothLowEnergyApi {
   connectToDevice: (deviceId: Device) => Promise<void>;
   disconnectFromDevice: () => void;
   connectedDevice: Device | null;
-  allDevices: Device[];
+  allDevices: Array<Device>;
   sendData: (value: string, call: number) => void;
 }
 
@@ -20,7 +20,7 @@ const CHARACTERISTIC_UUID = "3fbad818-b029-439d-b639-236e588fe2ca";
 
 function useBLE(): BluetoothLowEnergyApi {
   const bleManager = useMemo(() => new BleManager(), []);
-  const [allDevices, setAllDevices] = useState<Device[]>([]);
+  const [allDevices, setAllDevices] = useState<Array<Device>>([]);
   const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
 
   const requestPermissions = async () => {
@@ -43,7 +43,7 @@ function useBLE(): BluetoothLowEnergyApi {
     }
   };
 
-  const isDuplicteDevice = (devices: Device[], nextDevice: Device) =>
+  const isDuplicteDevice = (devices: Array<Device>, nextDevice: Device) =>
     devices.findIndex((device) => nextDevice.id === device.id) > -1 ||
     devices.findIndex((device) => nextDevice.name === device.name) > -1;
 
@@ -53,11 +53,8 @@ function useBLE(): BluetoothLowEnergyApi {
         console.log(error);
       }
       if (device) {
-        setAllDevices((prevState: Device[]) => {
-          if (
-            !isDuplicteDevice(prevState, device) &&
-            device.name === "Arduino Nano 33 BLE"
-          ) {
+        setAllDevices((prevState: Array<Device>) => {
+          if (!isDuplicteDevice(prevState, device) && device.name) {
             return [...prevState, device];
           }
           return prevState;
@@ -67,7 +64,7 @@ function useBLE(): BluetoothLowEnergyApi {
 
   const connectToDevice = async (device: Device) => {
     try {
-      if (device && device?.name) {
+      if (device && device?.name === "Arduino Nano 33 BLE") {
         const deviceConnection = await bleManager.connectToDevice(device.id);
         setConnectedDevice(deviceConnection);
         await deviceConnection.discoverAllServicesAndCharacteristics();
@@ -93,17 +90,25 @@ function useBLE(): BluetoothLowEnergyApi {
 
     try {
       await bleManager.writeCharacteristicWithResponseForDevice(
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         connectedDevice!.id,
         SERVICE_UUID,
         CHARACTERISTIC_UUID,
         base64.encode(dataToSend)
       );
       console.log("Value changed to :", dataToSend);
+      Alert.alert("Value sucessfully sent", `Sent value${  dataToSend}`);
     } catch (e) {
       console.log("FAILED TO SEND VALUE", e);
+      if (!connectedDevice) {
+        Alert.alert("Device not connected", "Please connect to a device");
+        return;
+      }
       if (call < 20) {
         setTimeout(() => sendData(value, call + 1), 1500);
+        return;
       }
+      Alert.alert("Failed to send value after 20 attemps", `${  e}`);
     }
   };
 

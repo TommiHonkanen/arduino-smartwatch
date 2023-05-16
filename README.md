@@ -1,6 +1,6 @@
 # Arduino Nano 33 BLE Smartwatch App
 
-This project creates a weather display using an Arduino Nano 33 BLE board and an ST7789 display. It retrieves weather data from a Bluetooth-enabled device and shows it on the display along with the date and time. The display can show three different views: date and time, temperature and humidity, and wind speed and cloud coverage. The user can switch between views by pressing a button. An Expo React Native app is included for controlling the smartwatch. The Expo app can be used to control certain elements on the smartwatch screen such as the wallpaper and the weather data that is displayed. More information about the project can be found at the bottom of this README.
+This project creates a weather display using an Arduino Nano 33 BLE board and an ST7789 display. It retrieves weather data from a Bluetooth-enabled device and shows it on the display along with the date and time. The display can show three different views: date and time, temperature and humidity, and wind speed and cloud coverage. The user can switch between views by pressing a button. An Expo React Native app is included for controlling the smartwatch. The Expo app can be used to control certain elements on the smartwatch screen such as the wallpaper and the weather data that is displayed. More information about the expo app can be found at the bottom of this README.
 
 ## Prerequisites
 
@@ -124,6 +124,8 @@ The second part of this repository contains the code for the Expo React Native a
    ```
 
 7. Scan the QR code shown in the terminal on your Android device to open the app. Make sure that your Android device is connected to the same wi-fi as your computer.
+
+Remember to update the API key in the `WeatherModal.tsx` file if you want to use the weather update feature.
 
 ## Usage
 
