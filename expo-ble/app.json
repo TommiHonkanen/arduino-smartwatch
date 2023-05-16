@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "arduino-notifications",
-    "slug": "arduino-notifications",
+    "name": "arduino-smartwatch",
+    "slug": "arduino-smartwatch",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -35,10 +35,15 @@
         "android.permission.BLUETOOTH_ADMIN",
         "android.permission.BLUETOOTH_CONNECT"
       ],
-      "package": "com.lahna.arduinonotifications"
+      "package": "com.lahna.arduinosmartwatch"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "e42706d1-b80a-4b46-a139-cdeb00cdb4ae"
+      }
     }
   }
 }

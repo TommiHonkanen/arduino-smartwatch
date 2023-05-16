@@ -28,7 +28,7 @@ const App = () => {
     useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
 
-  const API_KEY = "03ed9532b61d3531331a01a65d78b6b9";
+  const API_KEY = ""; // Add your own API key here
   const location = "Otaniemi";
 
   const scanForDevices = async () => {
@@ -83,13 +83,13 @@ const App = () => {
               }}>
               <TouchableOpacity
                 onPress={() => updateWeather()}
-                style={{ ...styles.ctaButton, width: 200 }}>
-                <Text style={styles.ctaButtonText}>Update Weather</Text>
+                style={{ ...styles.button, width: 200 }}>
+                <Text style={styles.buttonText}>Update Weather</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => setIsWallpaperModalVisible(true)}
-                style={{ ...styles.ctaButton, width: 200 }}>
-                <Text style={styles.ctaButtonText}>Change Wallpaper</Text>
+                style={{ ...styles.button, width: 200 }}>
+                <Text style={styles.buttonText}>Change Wallpaper</Text>
               </TouchableOpacity>
               <Text style={styles.titleText}>Enter a value:</Text>
               <TextInput
@@ -108,8 +108,8 @@ const App = () => {
               />
               <TouchableOpacity
                 onPress={() => sendData(message, 0)}
-                style={{ ...styles.ctaButton, width: 100 }}>
-                <Text style={styles.ctaButtonText}>Submit</Text>
+                style={{ ...styles.button, width: 100 }}>
+                <Text style={styles.buttonText}>Submit</Text>
               </TouchableOpacity>
             </View>
           </>
@@ -119,8 +119,8 @@ const App = () => {
       </View>
       <TouchableOpacity
         onPress={connectedDevice ? disconnectFromDevice : openModal}
-        style={styles.ctaButton}>
-        <Text style={styles.ctaButtonText}>
+        style={styles.button}>
+        <Text style={styles.buttonText}>
           {connectedDevice ? "Disconnect" : "Connect"}
         </Text>
       </TouchableOpacity>
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
     fontSize: 25,
     marginTop: 15,
   },
-  ctaButton: {
+  button: {
     backgroundColor: "#FF6060",
     justifyContent: "center",
     alignItems: "center",
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     borderRadius: 8,
   },
-  ctaButtonText: {
+  buttonText: {
     fontSize: 18,
     fontWeight: "bold",
     color: "white",

@@ -1,5 +1,5 @@
 {
-  "name": "arduino-notifications",
+  "name": "arduino-smartwatch",
   "version": "1.0.0",
   "scripts": {
     "devclient": "expo start --dev-client",

@@ -1,4 +1,4 @@
-package com.lahna.arduinonotifications;
+package com.lahna.arduinosmartwatch;
 
 import android.os.Build;
 import android.os.Bundle;

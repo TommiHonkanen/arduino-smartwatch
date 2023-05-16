@@ -113,9 +113,9 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace 'com.lahna.arduinonotifications'
+    namespace 'com.lahna.arduinosmartwatch'
     defaultConfig {
-        applicationId 'com.lahna.arduinonotifications'
+        applicationId 'com.lahna.arduinosmartwatch'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

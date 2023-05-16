@@ -44,7 +44,8 @@ function useBLE(): BluetoothLowEnergyApi {
   };
 
   const isDuplicteDevice = (devices: Device[], nextDevice: Device) =>
-    devices.findIndex((device) => nextDevice.id === device.id) > -1;
+    devices.findIndex((device) => nextDevice.id === device.id) > -1 ||
+    devices.findIndex((device) => nextDevice.name === device.name) > -1;
 
   const scanForPeripherals = () =>
     bleManager.startDeviceScan(null, null, (error, device) => {
@@ -66,7 +67,7 @@ function useBLE(): BluetoothLowEnergyApi {
 
   const connectToDevice = async (device: Device) => {
     try {
-      if (device && device?.name === "Arduino Nano 33 BLE") {
+      if (device && device?.name) {
         const deviceConnection = await bleManager.connectToDevice(device.id);
         setConnectedDevice(deviceConnection);
         await deviceConnection.discoverAllServicesAndCharacteristics();
