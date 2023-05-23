@@ -6,6 +6,7 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import Modal from "react-native-modal";
 
@@ -48,6 +49,7 @@ const WeatherModalListItem = ({
 
     if (response.status !== 200) {
       console.log("Error fetching weather data. Is your API key correct?");
+      Alert.alert("Error fetching weather data", "Is your API key correct?");
       return;
     }
 

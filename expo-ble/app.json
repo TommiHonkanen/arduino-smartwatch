@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "arduino-smartwatch",
+    "name": "Arduino Smartwatch",
     "slug": "arduino-smartwatch",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./img/chungus.png",
     "userInterfaceStyle": "light",
     "plugins": [
       [
@@ -27,7 +27,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./img/chungus.png",
         "backgroundColor": "#ffffff"
       },
       "permissions": [

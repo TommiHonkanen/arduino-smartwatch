@@ -845,7 +845,7 @@ void loop() {
                 case 2:
                   windSpeed = receivedString.substring(0, spaceIndex);  // Get the wind speed value
                   break;
-                default:
+                case 3:
                   clouds = receivedString.substring(0, spaceIndex);  // Get the cloud coverage value
                   break;
               }

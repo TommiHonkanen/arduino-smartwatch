@@ -96,8 +96,9 @@ function useBLE(): BluetoothLowEnergyApi {
         CHARACTERISTIC_UUID,
         base64.encode(dataToSend)
       );
-      console.log("Value changed to :", dataToSend);
-      Alert.alert("Value sucessfully sent", `Sent value${  dataToSend}`);
+      console.log("Value changed to: ", dataToSend);
+      // eslint-disable-next-line prefer-template
+      Alert.alert("Value sucessfully sent", "Sent value: " + dataToSend);
     } catch (e) {
       console.log("FAILED TO SEND VALUE", e);
       if (!connectedDevice) {
@@ -108,7 +109,7 @@ function useBLE(): BluetoothLowEnergyApi {
         setTimeout(() => sendData(value, call + 1), 1500);
         return;
       }
-      Alert.alert("Failed to send value after 20 attemps", `${  e}`);
+      Alert.alert("Failed to send value after 20 attemps", `${e}`);
     }
   };
 
