@@ -79,8 +79,13 @@ const App = () => {
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => setIsWallpaperModalVisible(true)}
-                  style={{ ...styles.button, width: 200 }}>
+                  style={{ ...styles.button, width: 200, marginBottom: 15 }}>
                   <Text style={styles.buttonText}>Change Wallpaper</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => sendData("changeview", 0)}
+                  style={{ ...styles.button, width: 200 }}>
+                  <Text style={styles.buttonText}>Change View</Text>
                 </TouchableOpacity>
               </View>
               {/*}

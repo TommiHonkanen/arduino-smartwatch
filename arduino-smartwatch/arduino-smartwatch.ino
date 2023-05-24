@@ -809,25 +809,27 @@ void loop() {
           lastNonDotIndex--;                                                             // Decrement the index
         }
         receivedString = receivedString.substring(0, lastNonDotIndex + 1);  // Get the substring without trailing dots
-        if (receivedString.substring(0, 2) == "W0") {                       // Check if the received data is a wallpaper request and if so, check which wallpaper is requested
+        if (receivedString == "chungus") {                  // Check if the received data is a wallpaper request and if so, check which wallpaper is requested
           if (currentWallpaper != 0) {                                      // Don't do anything if the requested wallpaper is already displayed
             wallpaperUpdated = false;                                       // Set the flag to update the wallpaper
             areBackgroundRectanglesDrawn = false;                           // Reset the flag for drawing background rectangles
             currentWallpaper = 0;                                           // Set the current wallpaper index
           }
-        } else if (receivedString.substring(0, 2) == "W1") {
+        } else if (receivedString == "saul") {
           if (currentWallpaper != 1) {
             wallpaperUpdated = false;
             areBackgroundRectanglesDrawn = false;
             currentWallpaper = 1;
           }
-        } else if (receivedString.substring(0, 2) == "W2") {
+        } else if (receivedString == "rick") {
           if (currentWallpaper != 2) {
             wallpaperUpdated = false;
             areBackgroundRectanglesDrawn = false;
             currentWallpaper = 2;
           }
-        } else {  // If the received data is not a wallpaper request, then it is weather data
+        } else if (receivedString == "changeview") { // If the received data is a view change request, then change the view
+          currentView++;:
+        } else {  // If the received data is not a wallpaper request or a view change request, then it is weather data
           int index = 0;
           // Weather data is sent in the following format: "temperature humidity windSpeed clouds"
           while (receivedString.length() > 0) {            // Process the received data

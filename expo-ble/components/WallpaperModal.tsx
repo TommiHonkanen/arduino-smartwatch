@@ -61,19 +61,19 @@ const WallpaperModal = ({
           <WallpaperModalListItem
             sendData={sendData}
             closeModal={closeModal}
-            wallpaper="W0"
+            wallpaper="chungus"
             image={chungus}
           />
           <WallpaperModalListItem
             sendData={sendData}
             closeModal={closeModal}
-            wallpaper="W1"
+            wallpaper="saul"
             image={saul}
           />
           <WallpaperModalListItem
             sendData={sendData}
             closeModal={closeModal}
-            wallpaper="W2"
+            wallpaper="rick"
             image={rick}
           />
         </View>
