@@ -809,26 +809,27 @@ void loop() {
           lastNonDotIndex--;                                                             // Decrement the index
         }
         receivedString = receivedString.substring(0, lastNonDotIndex + 1);  // Get the substring without trailing dots
-        if (receivedString == "chungus") {                  // Check if the received data is a wallpaper request and if so, check which wallpaper is requested
+        if (receivedString.substring(0, 7) == "chungus") {                  // Check if the received data is a wallpaper request and if so, check which wallpaper is requested
           if (currentWallpaper != 0) {                                      // Don't do anything if the requested wallpaper is already displayed
             wallpaperUpdated = false;                                       // Set the flag to update the wallpaper
             areBackgroundRectanglesDrawn = false;                           // Reset the flag for drawing background rectangles
             currentWallpaper = 0;                                           // Set the current wallpaper index
           }
-        } else if (receivedString == "saul") {
+        } else if (receivedString.substring(0, 4)  == "saul") {
           if (currentWallpaper != 1) {
             wallpaperUpdated = false;
             areBackgroundRectanglesDrawn = false;
             currentWallpaper = 1;
           }
-        } else if (receivedString == "rick") {
+        } else if (receivedString.substring(0, 4)  == "rick") {
           if (currentWallpaper != 2) {
             wallpaperUpdated = false;
             areBackgroundRectanglesDrawn = false;
             currentWallpaper = 2;
           }
-        } else if (receivedString == "changeview") { // If the received data is a view change request, then change the view
-          currentView++;:
+        } else if (receivedString.substring(0, 10) == "changeview") { // If the received data is a view change request, then change the view
+          areBackgroundRectanglesDrawn = false;
+          currentView++;
         } else {  // If the received data is not a wallpaper request or a view change request, then it is weather data
           int index = 0;
           // Weather data is sent in the following format: "temperature humidity windSpeed clouds"
