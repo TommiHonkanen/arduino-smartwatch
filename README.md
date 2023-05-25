@@ -24,7 +24,7 @@ Before using this app, you need to have the following installed:
 
 ## Setup
 
-1. Connect the display and SD card to the Arduino Nano 33 BLE board according to the following pin mapping:
+1. Connect the display and the RTC module to the Arduino Nano 33 BLE board according to the following pin mapping:
 
 | Display | Arduino Nano 33 BLE |
 | ------- | ------------------- |
