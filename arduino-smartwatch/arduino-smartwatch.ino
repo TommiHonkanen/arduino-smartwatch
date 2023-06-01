@@ -774,6 +774,9 @@ void setup() {
       ;  // If BLE initialization fails, loop indefinitely
   }
 
+  // Program the RTC to use the computer's current time (this line only needs to be here when the code is uploaded for the first time)
+  // rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+
   BLE.setLocalName("Arduino Nano 33 BLE");    // Set the local name for the BLE device
   BLE.setAdvertisedService(service);          // Set the advertised service for the BLE device
   service.addCharacteristic(characteristic);  // Add the characteristic to the service
