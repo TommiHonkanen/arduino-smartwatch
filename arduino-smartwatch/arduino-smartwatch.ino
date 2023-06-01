@@ -815,19 +815,19 @@ void loop() {
             areBackgroundRectanglesDrawn = false;                           // Reset the flag for drawing background rectangles
             currentWallpaper = 0;                                           // Set the current wallpaper index
           }
-        } else if (receivedString.substring(0, 4)  == "saul") {
+        } else if (receivedString.substring(0, 4) == "saul") {
           if (currentWallpaper != 1) {
             wallpaperUpdated = false;
             areBackgroundRectanglesDrawn = false;
             currentWallpaper = 1;
           }
-        } else if (receivedString.substring(0, 4)  == "rick") {
+        } else if (receivedString.substring(0, 4) == "rick") {
           if (currentWallpaper != 2) {
             wallpaperUpdated = false;
             areBackgroundRectanglesDrawn = false;
             currentWallpaper = 2;
           }
-        } else if (receivedString.substring(0, 10) == "changeview") { // If the received data is a view change request, then change the view
+        } else if (receivedString.substring(0, 10) == "changeview") {  // If the received data is a view change request, then change the view
           areBackgroundRectanglesDrawn = false;
           currentView++;
         } else {  // If the received data is not a wallpaper request or a view change request, then it is weather data
